@@ -21,6 +21,8 @@ app.use((req, res, next) => {
 app.use(express.json());
 app.use(cors()); // Enable CORS for all routes
 const FIELDS = ["name", "onboarding_status", "city", "phone"];
+const logController = (controller, message) =>
+  console.log(`[users.${controller}] ${message}`);
 
 // Pick only allowed fields from the request body
 const pick = (body) =>
@@ -44,7 +46,10 @@ function validate(data, { requireAll }) {
 app.post("/users", (req, res) => {
   const data = pick(req.body);
   const error = validate(data, { requireAll: true });
-  if (error) return res.status(400).json({ error });
+  if (error) {
+    logController("create", `validation failed: ${error}`);
+    return res.status(400).json({ error });
+  }
 
   const store = db.read();
   const id = store.users.reduce((max, u) => Math.max(max, u.id), 0) + 1;
@@ -57,6 +62,7 @@ app.post("/users", (req, res) => {
   };
   store.users.push(user);
   db.write(store);
+  logController("create", `created user id=${id}`);
   res.status(201).json(user);
 });
 
@@ -69,13 +75,18 @@ app.get("/users", (req, res) => {
     users = users.filter((u) => u.onboarding_status === onboarding_status);
   if (search)
     users = users.filter((u) => u.name.toLowerCase().includes(search.toLowerCase()));
+  logController("readAll", `returned ${users.length} user(s)`);
   res.json(users);
 });
 
 // READ ONE
 app.get("/users/:id", (req, res) => {
   const user = db.read().users.find((u) => u.id === Number(req.params.id));
-  if (!user) return res.status(404).json({ error: "User not found" });
+  if (!user) {
+    logController("readOne", `user not found id=${req.params.id}`);
+    return res.status(404).json({ error: "User not found" });
+  }
+  logController("readOne", `found user id=${user.id}`);
   res.json(user);
 });
 
@@ -83,11 +94,17 @@ app.get("/users/:id", (req, res) => {
 app.put("/users/:id", (req, res) => {
   const data = pick(req.body);
   const error = validate(data, { requireAll: true });
-  if (error) return res.status(400).json({ error });
+  if (error) {
+    logController("update", `validation failed: ${error}`);
+    return res.status(400).json({ error });
+  }
 
   const store = db.read();
   const idx = store.users.findIndex((u) => u.id === Number(req.params.id));
-  if (idx === -1) return res.status(404).json({ error: "User not found" });
+  if (idx === -1) {
+    logController("update", `user not found id=${req.params.id}`);
+    return res.status(404).json({ error: "User not found" });
+  }
 
   store.users[idx] = {
     name: data.name.trim(),
@@ -97,23 +114,36 @@ app.put("/users/:id", (req, res) => {
     phone: data.phone ?? "",
   };
   db.write(store);
+  logController("update", `updated user id=${store.users[idx].id}`);
   res.json(store.users[idx]);
 });
 
 // PARTIAL UPDATE
 app.patch("/users/:id", (req, res) => {
   const data = pick(req.body);
-  if (Object.keys(data).length === 0)
+  if (Object.keys(data).length === 0) {
+    logController("partialUpdate", "rejected request with no valid fields");
     return res.status(400).json({ error: "No valid fields provided" });
+  }
   const error = validate(data, { requireAll: false });
-  if (error) return res.status(400).json({ error });
+  if (error) {
+    logController("partialUpdate", `validation failed: ${error}`);
+    return res.status(400).json({ error });
+  }
 
   const store = db.read();
   const idx = store.users.findIndex((u) => u.id === Number(req.params.id));
-  if (idx === -1) return res.status(404).json({ error: "User not found" });
+  if (idx === -1) {
+    logController("partialUpdate", `user not found id=${req.params.id}`);
+    return res.status(404).json({ error: "User not found" });
+  }
 
   store.users[idx] = { ...store.users[idx], ...data, id: store.users[idx].id };
   db.write(store);
+  logController(
+    "partialUpdate",
+    `updated user id=${store.users[idx].id}; fields=${Object.keys(data).join(",")}`
+  );
   res.json(store.users[idx]);
 });
 
@@ -121,9 +151,13 @@ app.patch("/users/:id", (req, res) => {
 app.delete("/users/:id", (req, res) => {
   const store = db.read();
   const idx = store.users.findIndex((u) => u.id === Number(req.params.id));
-  if (idx === -1) return res.status(404).json({ error: "User not found" });
+  if (idx === -1) {
+    logController("delete", `user not found id=${req.params.id}`);
+    return res.status(404).json({ error: "User not found" });
+  }
   const [removed] = store.users.splice(idx, 1);
   db.write(store);
+  logController("delete", `deleted user id=${removed.id}`);
   res.json({ message: "User deleted", user: removed });
 });
 
