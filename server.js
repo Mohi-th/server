@@ -5,6 +5,19 @@ const cors = require("cors");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+app.use((req, res, next) => {
+  const startedAt = Date.now();
+  console.log(`Request: ${req.method} ${req.originalUrl}`);
+
+  res.on("finish", () => {
+    console.log(
+      `Response: ${req.method} ${req.originalUrl} ${res.statusCode} ${Date.now() - startedAt}ms`
+    );
+  });
+
+  next();
+});
+
 app.use(express.json());
 app.use(cors()); // Enable CORS for all routes
 const FIELDS = ["name", "onboarding_status", "city", "phone"];
