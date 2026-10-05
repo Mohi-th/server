@@ -1,0 +1,74 @@
+{
+  "users": [
+    {
+      "name": "Rahul Sharma",
+      "id": 1,
+      "onboarding_status": "active",
+      "city": "Bengaluru",
+      "phone": "+91 98765 43210"
+    },
+    {
+      "name": "Priya Nair",
+      "id": 2,
+      "onboarding_status": "active",
+      "city": "Mumbai",
+      "phone": "+91 87654 32109"
+    },
+    {
+      "name": "Arjun Mehta",
+      "id": 3,
+      "onboarding_status": "inactive",
+      "city": "Delhi",
+      "phone": "+91 76543 21098"
+    },
+    {
+      "name": "Sneha Reddy",
+      "id": 4,
+      "onboarding_status": "active",
+      "city": "Hyderabad",
+      "phone": "+91 91234 56780"
+    },
+    {
+      "name": "Vikram Iyer",
+      "id": 5,
+      "onboarding_status": "active",
+      "city": "Chennai",
+      "phone": "+91 99887 66554"
+    },
+    {
+      "name": "Ananya Rao",
+      "id": 6,
+      "onboarding_status": "inactive",
+      "city": "Pune",
+      "phone": "+91 88990 11223"
+    },
+    {
+      "name": "Karan Malhotra",
+      "id": 7,
+      "onboarding_status": "active",
+      "city": "Gurugram",
+      "phone": "+91 93456 78901"
+    },
+    {
+      "name": "Meera Krishnan",
+      "id": 8,
+      "onboarding_status": "active",
+      "city": "Kochi",
+      "phone": "+91 95678 12345"
+    },
+    {
+      "name": "Aditya Verma",
+      "id": 9,
+      "onboarding_status": "pending",
+      "city": "Ahmedabad",
+      "phone": "+91 92345 67890"
+    },
+    {
+      "name": "Divya Menon",
+      "id": 10,
+      "onboarding_status": "active",
+      "city": "Mysuru",
+      "phone": "+91 87890 12345"
+    }
+  ]
+}
